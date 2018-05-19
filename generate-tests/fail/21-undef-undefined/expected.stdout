@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/21-undef-undefined/main.h:1: #undef of undefined macro

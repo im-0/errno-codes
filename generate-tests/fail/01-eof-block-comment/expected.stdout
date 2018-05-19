@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/01-eof-block-comment/main.h:1: EOF without closing multiline block comment

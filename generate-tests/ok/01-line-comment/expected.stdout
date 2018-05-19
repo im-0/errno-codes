@@ -1,0 +1,21 @@
+{
+    "errno_consts": {
+        "ETEST": {
+            "code": 123,
+            "comment": "comment"
+        }
+    },
+    "tokens": [
+        [
+            [
+                "#",
+                "define",
+                "ETEST",
+                "123"
+            ],
+            [
+                " comment\n"
+            ]
+        ]
+    ]
+}

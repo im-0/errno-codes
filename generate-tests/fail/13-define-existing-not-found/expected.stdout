@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/13-define-existing-not-found/main.h:1: Existing errno constant not found (EBAR)

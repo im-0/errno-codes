@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/15-define-duplicate/main.h:2: Duplicate definition (EFAIL)

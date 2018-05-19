@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/19-unexpected-else-2/main.h:3: Unexpected #else (not #ifdef/#ifndef)

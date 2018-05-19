@@ -1,0 +1,40 @@
+{
+    "errno_consts": {
+        "EFOO": {
+            "code": 321,
+            "comment": "test 2"
+        }
+    },
+    "tokens": [
+        [
+            [
+                "#",
+                "define",
+                "EFOO",
+                "123"
+            ],
+            [
+                " test 1 "
+            ]
+        ],
+        [
+            [
+                "#",
+                "undef",
+                "EFOO"
+            ],
+            []
+        ],
+        [
+            [
+                "#",
+                "define",
+                "EFOO",
+                "321"
+            ],
+            [
+                " test 2 "
+            ]
+        ]
+    ]
+}

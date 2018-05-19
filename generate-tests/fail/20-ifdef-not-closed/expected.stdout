@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/20-ifdef-not-closed/main.h:1: #ifdef/#ifndef not closed

@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/11-define-zero-errno/main.h:1: Errno code <= 0 (0)

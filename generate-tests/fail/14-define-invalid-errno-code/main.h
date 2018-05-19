@@ -1,0 +1,1 @@
+#define EFOO # /* test */

@@ -1,0 +1,24 @@
+[package]
+name = "errno-codes"
+description = "errno codes with messages from various OSes and architectures"
+version = "0.1.0"
+authors = ["Ivan Mironov <mironov.ivan@gmail.com>"]
+license = "MIT/Apache-2.0"
+keywords = ["errno"]
+categories = []
+publish = false
+repository = "https://github.com/im-0/errno-codes"
+documentation = "https://docs.rs/crate/errno-codes"
+build = "build.rs"
+
+[features]
+default = []
+serialization = ["serde", "serde_derive"]
+
+[dependencies]
+phf = { version = "*", default_features = false }
+serde = { version = "*", default_features = false, optional = true }
+serde_derive = { version = "*", default_features = false, optional = true }
+
+[build-dependencies]
+phf_codegen = { version = "*", default_features = false }

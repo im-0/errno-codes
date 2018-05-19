@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/00-eof-after-backslash/main.h:1: EOF after backslash-newline

@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/12-define-neg-errno/main.h:1: Errno code <= 0 (-1)

@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/10-define-not-starting-e/main.h:1: Identifier is not starting with 'E'

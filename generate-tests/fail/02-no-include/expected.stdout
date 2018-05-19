@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/02-no-include/main.h:1: File 'test.h' not found

@@ -1,0 +1,1 @@
+ERROR: generate-tests/fail/05-no-abs-include/test/test.h:1: File 'test2.h' not found
