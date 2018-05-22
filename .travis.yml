@@ -1,0 +1,25 @@
+language: rust
+
+rust:
+  - stable
+  - beta
+  - nightly
+
+  # For clippy.
+  - nightly-2018-04-19
+
+env:
+  global:
+    - CLIPPY_VERSION=0.0.195
+
+before_script:
+  - ./travis-script before_script
+
+script:
+  - ./travis-script script
+
+os:
+  - linux
+
+# To install additional packages.
+sudo: required
