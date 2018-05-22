@@ -32,11 +32,10 @@ elif [ "${1}" = "script" ]; then
     fi
 
     # Build / test existing code.
-    cargo build --all
-    cargo test --all
-
-    cargo build --release --all
-    cargo test --release --all
+    cargo build --all --no-default-features
+    cargo test --all --no-default-features
+    cargo build --all --all-features
+    cargo test --all --all-features
 
     if is_stable; then
         # Test generate.py.
