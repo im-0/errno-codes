@@ -9,8 +9,7 @@ RM ?= rm
 GIT ?= git
 
 # TODO: Validate signature of source code.
-#LINUX_GIT ?= git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-LINUX_GIT ?= ivan.mironov@192.168.42.102:/home/ivan.mironov/projects/patches/linux
+LINUX_GIT ?= git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 LINUX_TAG ?= v4.16
 
 LINUX_ARCHITECTURES ?= \
