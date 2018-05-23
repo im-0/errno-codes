@@ -939,4 +939,4 @@ pub const EHWPOISON_MSG: &str = "Memory page has hardware error";
 /// Identifier for EHWPOISON as a string (equals to "EHWPOISON").
 pub const EHWPOISON_ID: &str = "EHWPOISON";
 
-include!(concat!(env!("OUT_DIR"), "/linux-riscv.rs"));
+include!(concat!(env!("OUT_DIR"), "/unix.linux.riscv.rs"));

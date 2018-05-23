@@ -514,93 +514,95 @@ pub const {identifier}_MSG: &str = "{comment}";
 pub const {identifier}_ID: &str = "{identifier}";
 '''.lstrip('\n')
 
-_CODEGEN_PREAMBLE = '''
-phf_codegen::Map::new()
-'''.lstrip('\n')
-_CODEGEN_BY_ID = '''
-    .entry("{identifier}", "ErrnoCode {{
-        num: {identifier},
-        msg: {identifier}_MSG,
-        id: {identifier}_ID,
-    }}")
-'''.lstrip('\n')
-_CODEGEN_BY_NUM_BEGIN = '''
-    .entry({num}, "&[
-'''.lstrip('\n')
-_CODEGEN_BY_NUM_ELEM = '''
-        ErrnoCode {{
-            num: {identifier},
-            msg: {identifier}_MSG,
-            id: {identifier}_ID,
-        }},
-'''.lstrip('\n')
-_CODEGEN_BY_NUM_END = '''
-    ]")
-'''.lstrip('\n')
+_CODEGEN_ERRNO_CODE = '''
+ErrnoCode {{ num: {identifier}, msg: {identifier}_MSG, id: {identifier}_ID }}
+'''.strip()
+_CODEGEN_BY_NUM_BEGIN = '&['
+_CODEGEN_BY_NUM_END = ']'
 
 
-def _generate(token_lines, quirks, include_f_name, codegen_f_name_base):
+def _get_include_name(base_f_name):
+    rel_base = os.path.relpath(base_f_name)
+    path = []
+    while True:
+        rel_base, tail = os.path.split(rel_base)
+        if tail == 'src':
+            break
+        else:
+            path.insert(0, tail)
+    return '.'.join(path) + '.rs'
+
+
+def _generate(token_lines, quirks, base_f_name):
     errno_consts = _get_errno_consts(token_lines, quirks)
 
-    by_num = {}
+    by_num = collections.OrderedDict()
 
-    sys.stdout.write(_PREAMBLE + '\n')
-    for identifier, info in six.iteritems(errno_consts):
-        comment = info['comment'].rstrip('.')
-        comment_with_dot = comment + '.'
-        info = dict(
-            info,
-            identifier=identifier,
-            comment=comment,
-            comment_with_dot=comment_with_dot)
+    with open(base_f_name + '.rs', 'w') as f_obj:
+        f_obj.write(_PREAMBLE + '\n')
+        for identifier, info in six.iteritems(errno_consts):
+            comment = info['comment'].rstrip('.')
+            comment_with_dot = comment + '.'
+            info = dict(
+                info,
+                identifier=identifier,
+                comment=comment,
+                comment_with_dot=comment_with_dot)
 
-        code = info['code']
-        if isinstance(code, six.string_types):
-            code = errno_consts[code]['code']
-        by_num_identifier_list = by_num.get(code, [])
-        if not by_num_identifier_list:
-            by_num[code] = by_num_identifier_list
-        by_num_identifier_list.append(identifier)
+            code = info['code']
+            if isinstance(code, six.string_types):
+                code = errno_consts[code]['code']
+            by_num_identifier_list = by_num.get(code, [])
+            if not by_num_identifier_list:
+                by_num[code] = by_num_identifier_list
+            by_num_identifier_list.append(identifier)
 
-        sys.stdout.write(_ERRNO_CODE.format(**info) + '\n')
+            f_obj.write(_ERRNO_CODE.format(**info) + '\n')
 
-    sys.stdout.write(_ENDING.format(f_name=include_f_name))
-    sys.stdout.flush()
+        f_obj.write(_ENDING.format(f_name=_get_include_name(base_f_name)))
 
-    with open(codegen_f_name_base + '-codegen-by-id.rs', 'w') as codegen:
-        codegen.write(_CODEGEN_PREAMBLE)
-        for identifier in six.iterkeys(errno_consts):
-            codegen.write(_CODEGEN_BY_ID.format(identifier=identifier))
+    codegen_json = collections.OrderedDict()
+    codegen_json['by_id'] = collections.OrderedDict(
+        map(
+            lambda ident: (ident,
+                           _CODEGEN_ERRNO_CODE.format(identifier=ident)),
+            six.iterkeys(errno_consts)))
+    codegen_json['by_num'] = collections.OrderedDict(
+        map(
+            lambda kv: (
+                kv[0],
+                _CODEGEN_BY_NUM_BEGIN + ', '.join(
+                    map(
+                        lambda ident: _CODEGEN_ERRNO_CODE.format(
+                            identifier=ident),
+                        kv[1],
+                    )) + _CODEGEN_BY_NUM_END,
+            ),
+            six.iteritems(by_num)))
 
-    with open(codegen_f_name_base + '-codegen-by-num.rs', 'w') as codegen:
-        codegen.write(_CODEGEN_PREAMBLE)
-        for num, identifier_list in six.iteritems(by_num):
-            codegen.write(_CODEGEN_BY_NUM_BEGIN.format(num=num))
-            for identifier in identifier_list:
-                codegen.write(
-                    _CODEGEN_BY_NUM_ELEM.format(identifier=identifier))
-            codegen.write(_CODEGEN_BY_NUM_END)
+    with open(base_f_name + '.json', 'w') as json_f_obj:
+        json.dump(codegen_json, json_f_obj, indent=4, separators=(',', ': '))
+        json_f_obj.write('\n')
 
 
 def _main():
     cmd = sys.argv[1]
-    f_name = sys.argv[2]
-    quirks = _QUIRKS[sys.argv[3]]
+    quirks = _QUIRKS[sys.argv[2]]
+    main_include_f_name = sys.argv[3]
     if cmd == 'test':
-        include_f_name = None
-        codegen_f_name_base = None
+        base_f_name = None
         include_paths = sys.argv[4:]
     else:
-        include_f_name = sys.argv[4]
-        codegen_f_name_base = sys.argv[5]
-        include_paths = sys.argv[6:]
+        base_f_name = sys.argv[4]
+        include_paths = sys.argv[5:]
 
-    token_lines = _read_tokens_from_file(f_name, include_paths, quirks)
+    token_lines = _read_tokens_from_file(
+        main_include_f_name, include_paths, quirks)
 
     if cmd == 'test':
         _test(token_lines, quirks)
     elif cmd == 'generate':
-        _generate(token_lines, quirks, include_f_name, codegen_f_name_base)
+        _generate(token_lines, quirks, base_f_name)
     else:
         raise RuntimeError(
             'Unknown command: %r' % (

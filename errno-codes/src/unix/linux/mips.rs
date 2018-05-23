@@ -953,4 +953,4 @@ pub const EDQUOT_MSG: &str = "Quota exceeded";
 /// Identifier for EDQUOT as a string (equals to "EDQUOT").
 pub const EDQUOT_ID: &str = "EDQUOT";
 
-include!(concat!(env!("OUT_DIR"), "/linux-mips.rs"));
+include!(concat!(env!("OUT_DIR"), "/unix.linux.mips.rs"));

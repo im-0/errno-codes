@@ -38,7 +38,7 @@ LINUX_ARCHITECTURES ?= \
 	x86 \
 	xtensa
 
-LINUX_RESULTS = $(patsubst %,$(ROOT_DIR)/errno-codes/src/unix/linux/%*.rs,$(LINUX_ARCHITECTURES))
+LINUX_RESULTS = $(patsubst %,$(ROOT_DIR)/errno-codes/src/unix/linux/%.*,$(LINUX_ARCHITECTURES))
 
 .PHONY: help
 help:
@@ -60,22 +60,22 @@ test:
 	@set -eu; \
 	for test_dir in generate-tests/fail/*; do \
 		echo "Test (py2): $${test_dir} (should fail)"; \
-		$(PYTHON2) generate.py test "$${test_dir}/main.h" none "$${test_dir}" >"./.test-out" && exit 1 || echo "SUCCESS"; \
+		$(PYTHON2) generate.py test none "$${test_dir}/main.h" "$${test_dir}" >"./.test-out" && exit 1 || echo "SUCCESS"; \
 		$(DIFF) -us "$${test_dir}/expected.stdout" "./.test-out"; \
 		\
 		echo "Test (py3): $${test_dir} (should fail)"; \
-		$(PYTHON3) generate.py test "$${test_dir}/main.h" none "$${test_dir}" >"./.test-out" && exit 1 || echo "SUCCESS"; \
+		$(PYTHON3) generate.py test none "$${test_dir}/main.h" "$${test_dir}" >"./.test-out" && exit 1 || echo "SUCCESS"; \
 		$(DIFF) -us "$${test_dir}/expected.stdout" "./.test-out"; \
 	done
 
 	@set -eu; \
 	for test_dir in generate-tests/ok/*; do \
 		echo "Test (py2): $${test_dir}"; \
-		$(PYTHON2) generate.py test "$${test_dir}/main.h" none "$${test_dir}" >"./.test-out" && echo "SUCCESS" || exit 1; \
+		$(PYTHON2) generate.py test none "$${test_dir}/main.h" "$${test_dir}" >"./.test-out" && echo "SUCCESS" || exit 1; \
 		$(DIFF) -us "$${test_dir}/expected.stdout" "./.test-out"; \
 		\
 		echo "Test (py3): $${test_dir}"; \
-		$(PYTHON3) generate.py test "$${test_dir}/main.h" none "$${test_dir}" >"./.test-out" && echo "SUCCESS" || exit 1; \
+		$(PYTHON3) generate.py test none "$${test_dir}/main.h" "$${test_dir}" >"./.test-out" && echo "SUCCESS" || exit 1; \
 		$(DIFF) -us "$${test_dir}/expected.stdout" "./.test-out"; \
 	done
 
@@ -114,14 +114,12 @@ $(GENERATE_DIR)/.generate-linux-done: GNUmakefile\
 	for arch in $(LINUX_ARCHITECTURES); do \
 		$(PYTHON2) generate.py \
 			generate \
-			"$(GENERATE_DIR)/linux/include/uapi/linux/errno.h" \
 			linux \
-			"linux-$${arch}.rs" \
+			"$(GENERATE_DIR)/linux/include/uapi/linux/errno.h" \
 			"$(ROOT_DIR)/errno-codes/src/unix/linux/$${arch}" \
 			"$(GENERATE_DIR)/linux/arch/$${arch}/include/uapi" \
 			"$(GENERATE_DIR)/linux/include/uapi" \
-			"$(GENERATE_DIR)/linux-generic-arch" \
-			>"$(ROOT_DIR)/errno-codes/src/unix/linux/$${arch}.rs"; \
+			"$(GENERATE_DIR)/linux-generic-arch"; \
 	done
 
 	touch "$(@)"

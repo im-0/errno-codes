@@ -1,59 +1,88 @@
 extern crate phf_codegen;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 
-macro_rules! gen_linux {
-    ($arch:expr) => {{
-        use std::io::Write;
+#[derive(Deserialize)]
+struct JSON {
+    by_id: std::collections::BTreeMap<String, String>,
+    by_num: std::collections::BTreeMap<std::os::raw::c_int, String>,
+}
 
-        let path = std::path::Path::new(&std::env::var("OUT_DIR").unwrap()).join(concat!("linux-", $arch, ".rs"));
-        let mut file = std::io::BufWriter::new(std::fs::File::create(&path).unwrap());
+fn gen(json_path: &str) {
+    use std::io::Write;
 
-        // By identifier.
-        write!(
-            &mut file,
-            "/// Map string identifier to information about errno code.\n"
-        ).unwrap();
-        write!(&mut file, "pub static BY_ID: phf::Map<&'static str, ErrnoCode> = ").unwrap();
-        include!(concat!("src/unix/linux/", $arch, "-codegen-by-id.rs"))
-            .build(&mut file)
-            .unwrap();
-        write!(&mut file, ";\n\n").unwrap();
+    let json = std::fs::read_to_string(json_path).unwrap();
+    let json: JSON = serde_json::from_str(&json).unwrap();
 
-        // By number.
-        write!(&mut file, "/// Map errno number to information about errno code.\n").unwrap();
-        write!(
-            &mut file,
-            "pub static BY_NUM: phf::Map<std::os::raw::c_int, ErrnoCodes> = "
-        ).unwrap();
-        include!(concat!("src/unix/linux/", $arch, "-codegen-by-num.rs"))
-            .build(&mut file)
-            .unwrap();
-        write!(&mut file, ";\n").unwrap();
-    }};
+    let lslash = json_path.find('/').unwrap();
+    let rdot = json_path.rfind('.').unwrap();
+    let gen_f_name = &json_path[lslash + 1..rdot];
+    let mut gen_f_name = gen_f_name.replace('/', ".");
+    gen_f_name.push_str(".rs");
+
+    let gen_f_name = std::path::Path::new(&std::env::var("OUT_DIR").unwrap()).join(gen_f_name);
+    let mut file = std::io::BufWriter::new(std::fs::File::create(&gen_f_name).unwrap());
+
+    // By identifier.
+    let mut by_id = phf_codegen::Map::new();
+    json.by_id.iter().for_each(|(ident, rust_code)| {
+        by_id.entry(ident.as_str(), rust_code.as_str());
+    });
+
+    write!(
+        &mut file,
+        "/// Map string identifier to information about errno code.\n"
+    ).unwrap();
+    write!(&mut file, "pub static BY_ID: phf::Map<&'static str, ErrnoCode> = ").unwrap();
+    by_id.build(&mut file).unwrap();
+    write!(&mut file, ";\n\n").unwrap();
+
+    // By number.
+    let mut by_num = phf_codegen::Map::new();
+    json.by_num.iter().for_each(|(num, rust_code)| {
+        by_num.entry(*num, rust_code.as_str());
+    });
+
+    write!(&mut file, "/// Map errno number to information about errno code.\n").unwrap();
+    write!(
+        &mut file,
+        "pub static BY_NUM: phf::Map<std::os::raw::c_int, ErrnoCodes> = "
+    ).unwrap();
+    by_num.build(&mut file).unwrap();
+    write!(&mut file, ";\n").unwrap();
+
+    file.flush().unwrap();
 }
 
 fn main() {
-    gen_linux!("alpha");
-    gen_linux!("arc");
-    gen_linux!("arm");
-    gen_linux!("arm64");
-    gen_linux!("c6x");
-    gen_linux!("h8300");
-    gen_linux!("hexagon");
-    gen_linux!("ia64");
-    gen_linux!("m68k");
-    gen_linux!("microblaze");
-    gen_linux!("mips");
-    gen_linux!("nds32");
-    gen_linux!("nios2");
-    gen_linux!("openrisc");
-    gen_linux!("parisc");
-    gen_linux!("powerpc");
-    gen_linux!("riscv");
-    gen_linux!("s390");
-    gen_linux!("sh");
-    gen_linux!("sparc");
-    gen_linux!("um");
-    gen_linux!("unicore32");
-    gen_linux!("x86");
-    gen_linux!("xtensa");
+    for arch in &[
+        "alpha",
+        "arc",
+        "arm",
+        "arm64",
+        "c6x",
+        "h8300",
+        "hexagon",
+        "ia64",
+        "m68k",
+        "microblaze",
+        "mips",
+        "nds32",
+        "nios2",
+        "openrisc",
+        "parisc",
+        "powerpc",
+        "riscv",
+        "s390",
+        "sh",
+        "sparc",
+        "um",
+        "unicore32",
+        "x86",
+        "xtensa",
+    ] {
+        gen(&format!("src/unix/linux/{}.json", arch));
+    }
 }

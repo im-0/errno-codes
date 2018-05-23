@@ -939,4 +939,4 @@ pub const EDEADLOCK_MSG: &str = "File locking deadlock error";
 /// Identifier for EDEADLOCK as a string (equals to "EDEADLOCK").
 pub const EDEADLOCK_ID: &str = "EDEADLOCK";
 
-include!(concat!(env!("OUT_DIR"), "/linux-powerpc.rs"));
+include!(concat!(env!("OUT_DIR"), "/unix.linux.powerpc.rs"));
