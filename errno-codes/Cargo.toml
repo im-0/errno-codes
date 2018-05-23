@@ -25,3 +25,6 @@ phf_codegen = { version = "*", default_features = false }
 serde = { version = "*", default_features = false }
 serde_derive = { version = "*", default_features = false }
 serde_json = { version = "*", default_features = false }
+
+[dev-dependencies]
+pretty_assertions = { version = "*", default_features = false }
