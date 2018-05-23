@@ -107,7 +107,8 @@ $(GENERATE_DIR)/linux-generic-arch/.done: $(GENERATE_DIR)/.mkdir-done
 
 	touch "$(@)"
 
-$(GENERATE_DIR)/.generate-linux-done: GNUmakefile\
+$(GENERATE_DIR)/.generate-linux-done: GNUmakefile \
+		generate.py \
 		$(GENERATE_DIR)/linux/.clone-done \
 		$(GENERATE_DIR)/linux-generic-arch/.done
 	set -eu; \

@@ -502,9 +502,28 @@ use phf;
 use ErrnoCode;
 use ErrnoCodes;
 
+/// Return string describing error number.
+///
+/// Returns None on unknown errnum.
+///
+/// Returns only the first message if there are multiple error messages defined
+/// for the same numeric constant.
+pub fn strerror(errnum: std::os::raw::c_int) -> Option<&'static str> {
+    BY_NUM.get(&errnum).map(|code| code[0].msg)
+}
+
 '''.lstrip('\n')
 _ENDING = '''
 include!(concat!(env!("OUT_DIR"), "/{f_name}"));
+
+#[cfg(test)]
+mod tests {{
+    #[test]
+    fn strerror() {{
+        assert_eq!(super::strerror(super::EDOM), Some(super::EDOM_MSG));
+        assert_eq!(super::strerror(0), None);
+    }}
+}}
 '''.lstrip('\n')
 
 _ERRNO_CODE = '''

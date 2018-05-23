@@ -10,6 +10,16 @@ use phf;
 use ErrnoCode;
 use ErrnoCodes;
 
+/// Return string describing error number.
+///
+/// Returns None on unknown errnum.
+///
+/// Returns only the first message if there are multiple error messages defined
+/// for the same numeric constant.
+pub fn strerror(errnum: std::os::raw::c_int) -> Option<&'static str> {
+    BY_NUM.get(&errnum).map(|code| code[0].msg)
+}
+
 /// Operation not permitted.
 pub const EPERM: std::os::raw::c_int = 1;
 /// Human-readable message for EPERM.
@@ -942,3 +952,12 @@ pub const EHWPOISON_MSG: &str = "Memory page has hardware error";
 pub const EHWPOISON_ID: &str = "EHWPOISON";
 
 include!(concat!(env!("OUT_DIR"), "/unix.linux.ia64.rs"));
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn strerror() {
+        assert_eq!(super::strerror(super::EDOM), Some(super::EDOM_MSG));
+        assert_eq!(super::strerror(0), None);
+    }
+}
