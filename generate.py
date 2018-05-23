@@ -38,7 +38,10 @@ _QUIRKS = {
         'id_blacklist': {'errno'},
     },
 
-    'windows': {},
+    'windows': {
+        'no_includes': True,
+        'id_blacklist': {'errno'},
+    },
 }
 
 
@@ -282,6 +285,17 @@ def _process_ifdefs(token_lines, defined=None):
                         f_name, line_n))
             state.pop()
             enabled.pop()
+        elif _match_tokens(
+                tokens,
+                (
+                        _T_HASH,
+                        'if',
+                        None,
+                ), False):
+            # Hack to "ignore" #if.
+            # Breaks #else.
+            state.append('ifdef')
+            enabled.append(False)
         else:
             if all(enabled):
                 yield f_name, line_n, tokens, comments
@@ -359,6 +373,8 @@ def _read_tokens_from_file(f_name, include_paths, quirks):
 
 def _get_errno_consts(token_lines, quirks):
     errno_consts = collections.OrderedDict()
+    # Saves only first code.
+    by_num = {}
 
     id_blacklist = quirks.get('id_blacklist', {})
 
@@ -416,11 +432,12 @@ def _get_errno_consts(token_lines, quirks):
                     f_name, line_n))
 
         if tokens[3][1] == _T_INT:
-            code = int(tokens[3][0].group(0))
-            if code <= 0:
+            num = int(tokens[3][0].group(0))
+            if num <= 0:
                 raise RuntimeError(
                     '%s:%d: Errno code <= 0 (%d)' % (
-                        f_name, line_n, code))
+                        f_name, line_n, num))
+            code = num
         elif tokens[3][1] == _T_IDENTIFIER:
             existing_ident = tokens[3][0].group(0)
             existing = errno_consts.get(existing_ident)
@@ -430,6 +447,11 @@ def _get_errno_consts(token_lines, quirks):
                         f_name, line_n, existing_ident))
             else:
                 code = existing_ident
+
+                num = existing_ident
+                while isinstance(num, six.string_types):
+                    num = errno_consts[num]['code']
+
                 if not comments:
                     comments = ['Same as %s (%s)' % (existing_ident,
                                                      existing['comment'])]
@@ -444,13 +466,22 @@ def _get_errno_consts(token_lines, quirks):
                     f_name, line_n, ident))
 
         if not comments:
-            raise RuntimeError(
-                '%s:%d: No comments' % (
-                    f_name, line_n))
+            existing_ident = by_num.get(num)
+            if existing_ident is None:
+                raise RuntimeError(
+                    '%s:%d: No comments' % (
+                        f_name, line_n))
+            else:
+                existing = errno_consts[existing_ident]
+                comments = ['Same as %s (%s)' % (existing_ident,
+                                                 existing['comment'])]
+
         if len(comments) > 1:
             raise RuntimeError(
                 '%s:%d: Too many comments' % (
                     f_name, line_n))
+
+        by_num.setdefault(num, ident)
 
         errno_consts[ident] = {
             'code': code,
@@ -577,7 +608,8 @@ def _generate(token_lines, quirks, base_f_name):
     with open(base_f_name + '.rs', 'w') as f_obj:
         f_obj.write(_PREAMBLE + '\n')
         for identifier, info in six.iteritems(errno_consts):
-            comment = info['comment'].rstrip('.')
+            # TODO: Properly escape characters in comment.
+            comment = info['comment'].rstrip('.').replace('"', '\\"')
             comment_with_dot = comment + '.'
             info = dict(
                 info,

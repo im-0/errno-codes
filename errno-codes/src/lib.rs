@@ -25,6 +25,8 @@ extern crate serde_derive;
 
 /// errno codes for Unix and Unix-like OSes.
 pub mod unix;
+/// errno codes for Windows.
+pub mod windows;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
@@ -94,6 +96,7 @@ pub enum UnixOs {
 /// OS family.
 pub enum Family {
     Unix(UnixOs),
+    Windows,
 
     Any,
 

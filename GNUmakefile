@@ -11,6 +11,8 @@ GIT ?= git
 # TODO: Validate signature of source code.
 LINUX_GIT ?= git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 LINUX_TAG ?= v4.16
+MINGW_GIT ?= https://git.code.sf.net/p/mingw/mingw-org-wsl
+MINGW_TAG ?= wsl-5.1-release
 
 LINUX_ARCHITECTURES ?= \
 	alpha \
@@ -125,6 +127,26 @@ $(GENERATE_DIR)/.generate-linux-done: GNUmakefile \
 
 	touch "$(@)"
 
-$(GENERATE_DIR)/.rustfmt-done: $(GENERATE_DIR)/.generate-linux-done
+$(GENERATE_DIR)/mingw-org-wsl/.clone-done: GNUmakefile $(GENERATE_DIR)/.mkdir-done
+	[ -e "$(GENERATE_DIR)/mingw-org-wsl" ] && \
+		$(RM) -fr "$(GENERATE_DIR)/mingw-org-wsl" || \
+		true
+
+	$(GIT) clone --depth 1 --branch "$(MINGW_TAG)" "$(MINGW_GIT)" "$(GENERATE_DIR)/mingw-org-wsl"
+	touch "$(@)"
+
+$(GENERATE_DIR)/.generate-windows-done: GNUmakefile \
+		generate.py \
+		$(GENERATE_DIR)/mingw-org-wsl/.clone-done
+	$(PYTHON2) generate.py \
+		generate \
+		windows \
+		"$(GENERATE_DIR)/mingw-org-wsl/mingwrt/include/errno.h" \
+		"$(ROOT_DIR)/errno-codes/src/windows"
+	touch "$(@)"
+
+$(GENERATE_DIR)/.rustfmt-done: \
+		$(GENERATE_DIR)/.generate-linux-done \
+		$(GENERATE_DIR)/.generate-windows-done
 	./rustfmt
 	touch "$(@)"

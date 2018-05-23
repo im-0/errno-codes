@@ -85,4 +85,6 @@ fn main() {
     ] {
         gen(&format!("src/unix/linux/{}.json", arch));
     }
+
+    gen("src/windows.json");
 }

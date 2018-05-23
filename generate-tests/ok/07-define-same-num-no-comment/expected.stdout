@@ -1,0 +1,34 @@
+{
+    "errno_consts": {
+        "EBAR": {
+            "code": 1,
+            "comment": "Same as EFOO (test)"
+        },
+        "EFOO": {
+            "code": 1,
+            "comment": "test"
+        }
+    },
+    "tokens": [
+        [
+            [
+                "#",
+                "define",
+                "EFOO",
+                "1"
+            ],
+            [
+                " test\n"
+            ]
+        ],
+        [
+            [
+                "#",
+                "define",
+                "EBAR",
+                "1"
+            ],
+            []
+        ]
+    ]
+}
