@@ -512,6 +512,15 @@ pub fn strerror(errnum: std::os::raw::c_int) -> Option<&'static str> {
     BY_NUM.get(&errnum).map(|code| code[0].msg)
 }
 
+/// Return short string identifier for error number.
+///
+/// Returns None on unknown errnum.
+///
+/// Returns only the first identifier if there are multiple identifiers defined
+/// for the same numeric constant.
+pub fn strerror_id(errnum: std::os::raw::c_int) -> Option<&'static str> {
+    BY_NUM.get(&errnum).map(|code| code[0].id)
+}
 '''.lstrip('\n')
 _ENDING = '''
 include!(concat!(env!("OUT_DIR"), "/{f_name}"));
@@ -522,6 +531,12 @@ mod tests {{
     fn strerror() {{
         assert_eq!(super::strerror(super::EDOM), Some(super::EDOM_MSG));
         assert_eq!(super::strerror(0), None);
+    }}
+
+    #[test]
+    fn strerror_id() {{
+        assert_eq!(super::strerror_id(super::EDOM), Some("EDOM"));
+        assert_eq!(super::strerror_id(0), None);
     }}
 }}
 '''.lstrip('\n')
