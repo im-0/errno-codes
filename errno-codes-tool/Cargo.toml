@@ -10,6 +10,9 @@ publish = false
 repository = "https://github.com/im-0/errno-codes"
 autobins = false
 
+[badges]
+travis-ci = { repository = "im-0/errno-codes", branch = "master" }
+
 [[bin]]
 name = "errno-codes"
 path = "src/main.rs"

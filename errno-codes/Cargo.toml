@@ -12,6 +12,9 @@ documentation = "https://docs.rs/crate/errno-codes"
 build = "build.rs"
 readme = "README.md"
 
+[badges]
+travis-ci = { repository = "im-0/errno-codes", branch = "master" }
+
 [features]
 default = []
 serialization = ["serde", "serde_derive"]
