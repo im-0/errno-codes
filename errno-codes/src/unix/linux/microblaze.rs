@@ -10,6 +10,23 @@ use phf;
 use ErrnoCode;
 use ErrnoCodes;
 
+/// Return structure describing error number.
+///
+/// Returns None on unknown errnum.
+///
+/// Returns only the first structure if there are multiple error
+/// identifiers/messages defined for the same numeric constant.
+pub fn info_by_num(errnum: std::os::raw::c_int) -> Option<&'static ErrnoCode> {
+    BY_NUM.get(&errnum).map(|infos| &infos[0])
+}
+
+/// Return structure describing error identifier.
+///
+/// Returns None on unknown err_id.
+pub fn info_by_id(err_id: &str) -> Option<&'static ErrnoCode> {
+    BY_ID.get(err_id)
+}
+
 /// Return string describing error number.
 ///
 /// Returns None on unknown errnum.
@@ -17,17 +34,7 @@ use ErrnoCodes;
 /// Returns only the first message if there are multiple error messages defined
 /// for the same numeric constant.
 pub fn strerror(errnum: std::os::raw::c_int) -> Option<&'static str> {
-    BY_NUM.get(&errnum).map(|code| code[0].msg)
-}
-
-/// Return short string identifier for error number.
-///
-/// Returns None on unknown errnum.
-///
-/// Returns only the first identifier if there are multiple identifiers defined
-/// for the same numeric constant.
-pub fn strerror_id(errnum: std::os::raw::c_int) -> Option<&'static str> {
-    BY_NUM.get(&errnum).map(|code| code[0].id)
+    info_by_num(errnum).map(|info| info.msg)
 }
 
 /// Operation not permitted.
@@ -965,15 +972,35 @@ include!(concat!(env!("OUT_DIR"), "/unix.linux.microblaze.rs"));
 
 #[cfg(test)]
 mod tests {
+    use ErrnoCode;
+
+    #[test]
+    fn info_by_num() {
+        assert_eq!(
+            super::info_by_num(super::EDOM),
+            Some(&ErrnoCode {
+                num: super::EDOM,
+                msg: super::EDOM_MSG,
+                id: super::EDOM_ID,
+            })
+        );
+    }
+
+    #[test]
+    fn info_by_id() {
+        assert_eq!(
+            super::info_by_id(super::EDOM_ID),
+            Some(&ErrnoCode {
+                num: super::EDOM,
+                msg: super::EDOM_MSG,
+                id: super::EDOM_ID,
+            })
+        );
+    }
+
     #[test]
     fn strerror() {
         assert_eq!(super::strerror(super::EDOM), Some(super::EDOM_MSG));
         assert_eq!(super::strerror(0), None);
-    }
-
-    #[test]
-    fn strerror_id() {
-        assert_eq!(super::strerror_id(super::EDOM), Some("EDOM"));
-        assert_eq!(super::strerror_id(0), None);
     }
 }
