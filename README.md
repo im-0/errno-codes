@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/im-0/errno-codes.svg?branch=master)](https://travis-ci.org/im-0/errno-codes)
+[![Build Status](https://api.travis-ci.org/im-0/errno-codes.svg?branch=b0.1.0)](https://travis-ci.org/im-0/errno-codes)
 [![crates.io](https://img.shields.io/crates/v/errno-codes.svg?maxAge=3600)](https://crates.io/crates/errno-codes)
 ![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache_2.0-blue.svg)
 

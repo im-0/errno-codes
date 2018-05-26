@@ -6,29 +6,29 @@ authors = ["Ivan Mironov <mironov.ivan@gmail.com>"]
 license = "MIT/Apache-2.0"
 keywords = ["errno"]
 categories = []
-publish = false
+publish = true
 repository = "https://github.com/im-0/errno-codes"
 documentation = "https://docs.rs/crate/errno-codes"
 build = "build.rs"
 readme = "README.md"
 
 [badges]
-travis-ci = { repository = "im-0/errno-codes", branch = "master" }
+travis-ci = { repository = "im-0/errno-codes", branch = "b0.1.0" }
 
 [features]
 default = []
 serialization = ["serde", "serde_derive"]
 
 [dependencies]
-phf = { version = "*", default_features = false }
-serde = { version = "*", default_features = false, optional = true }
-serde_derive = { version = "*", default_features = false, optional = true }
+phf = { version = "0.7", default_features = false }
+serde = { version = "1.0", default_features = false, optional = true }
+serde_derive = { version = "1.0", default_features = false, optional = true }
 
 [build-dependencies]
-phf_codegen = { version = "*", default_features = false }
-serde = { version = "*", default_features = false }
-serde_derive = { version = "*", default_features = false }
-serde_json = { version = "*", default_features = false }
+phf_codegen = { version = "0.7", default_features = false }
+serde = { version = "1.0", default_features = false }
+serde_derive = { version = "1.0", default_features = false }
+serde_json = { version = "1.0", default_features = false }
 
 [dev-dependencies]
-pretty_assertions = { version = "*", default_features = false }
+pretty_assertions = { version = "0.5", default_features = false }
