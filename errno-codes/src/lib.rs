@@ -446,6 +446,20 @@ impl GetMappings for Family {
     }
 }
 
+/// Search errno information by string identifier.
+pub fn search_by_id(query: QueryFamily, err_id: &str) -> Vec<(Family, &'static ErrnoCode)> {
+    let err_id = err_id.to_uppercase();
+
+    let mut result = Vec::new();
+    query.expand(|family| {
+        let _ = family
+            .get_by_id_mapping()
+            .get(err_id.as_str())
+            .map(|code| result.push((*family, code)));
+    });
+    result
+}
+
 /// Search errno information by numeric constant.
 pub fn search_by_num(query: QueryFamily, errnum: std::os::raw::c_int) -> Vec<(Family, &'static ErrnoCode)> {
     let mut result = Vec::new();
@@ -482,6 +496,14 @@ mod tests {
                 .iter()
                 .map(|unix| super::Family::Unix(*unix))
                 .collect()
+        );
+    }
+
+    #[test]
+    fn search_by_id() {
+        assert_eq!(
+            super::search_by_id(super::QueryFamily::Any, "EDOM").len(),
+            super::Family::all_known().len()
         );
     }
 
