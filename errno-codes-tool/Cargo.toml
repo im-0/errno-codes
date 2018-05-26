@@ -1,0 +1,18 @@
+[package]
+name = "errno-codes-tool"
+description = "errno codes with messages from various OSes and architectures"
+version = "0.1.0"
+authors = ["Ivan Mironov <mironov.ivan@gmail.com>"]
+license = "MIT/Apache-2.0"
+keywords = ["errno"]
+categories = []
+publish = false
+repository = "https://github.com/im-0/errno-codes"
+autobins = false
+
+[[bin]]
+name = "errno-codes"
+path = "src/main.rs"
+
+[dependencies]
+errno-codes = { version = "*", path = "../errno-codes", default_features = false }

@@ -44,6 +44,12 @@ pub struct ErrnoCode {
     pub id: &'static str,
 }
 
+impl std::fmt::Display for ErrnoCode {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(formatter, "{} {} {}", self.num, self.id, self.msg)
+    }
+}
+
 pub type ErrnoCodes = &'static [ErrnoCode];
 
 // TODO: Use `macro-attr` crate to automatically generate code for enums.
@@ -256,6 +262,43 @@ impl LinuxArch {
     }
 }
 
+impl std::fmt::Display for LinuxArch {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        write!(
+            formatter,
+            "{}",
+            match *self {
+                LinuxArch::Alpha => "alpha",
+                LinuxArch::ARC => "arc",
+                LinuxArch::ARM => "arm",
+                LinuxArch::ARM64 => "arm64",
+                LinuxArch::C6x => "c6x",
+                LinuxArch::H8300 => "h8300",
+                LinuxArch::Hexagon => "hexagon",
+                LinuxArch::IA64 => "ia64",
+                LinuxArch::M68k => "m68k",
+                LinuxArch::Microblaze => "microblaze",
+                LinuxArch::MIPS => "mips",
+                LinuxArch::NDS32 => "nds32",
+                LinuxArch::Nios2 => "nios2",
+                LinuxArch::OpenRISC => "openrisc",
+                LinuxArch::PARISC => "parisc",
+                LinuxArch::PowerPC => "powerpc",
+                LinuxArch::RISCV => "riscv",
+                LinuxArch::S390 => "s390",
+                LinuxArch::SH => "sh",
+                LinuxArch::SPARC => "sparc",
+                LinuxArch::UM => "um",
+                LinuxArch::Unicore32 => "unicore32",
+                LinuxArch::X86 => "x86",
+                LinuxArch::Xtensa => "xtensa",
+
+                LinuxArch::__NonExhaustive => unreachable!(),
+            }
+        )
+    }
+}
+
 impl GetMappings for LinuxArch {
     fn get_by_id_mapping(&self) -> &'static phf::Map<&'static str, ErrnoCode> {
         match *self {
@@ -363,6 +406,16 @@ impl Unix {
     }
 }
 
+impl std::fmt::Display for Unix {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match *self {
+            Unix::Linux(arch) => write!(formatter, "linux::{}", arch),
+
+            Unix::__NonExhaustive => unreachable!(),
+        }
+    }
+}
+
 impl GetMappings for Unix {
     fn get_by_id_mapping(&self) -> &'static phf::Map<&'static str, ErrnoCode> {
         match *self {
@@ -423,6 +476,17 @@ impl Family {
             Family::Unix(Unix::Linux(LinuxArch::Xtensa)),
             Family::Windows,
         ]
+    }
+}
+
+impl std::fmt::Display for Family {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match *self {
+            Family::Unix(unix) => write!(formatter, "unix::{}", unix),
+            Family::Windows => write!(formatter, "windows"),
+
+            Family::__NonExhaustive => unreachable!(),
+        }
     }
 }
 
