@@ -10,6 +10,7 @@ publish = false
 repository = "https://github.com/im-0/errno-codes"
 documentation = "https://docs.rs/crate/errno-codes"
 build = "build.rs"
+readme = "README.md"
 
 [features]
 default = []
